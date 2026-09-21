@@ -10,6 +10,8 @@ const router = express.Router();
 // router.get("/grade4gpquiz", generategreenplantsquiz);
 
 router.post("/explain", explainWrongAnswer);
+
+router.post("/explain4", explainWrongAnswer);
 router.post("/explain2", explainWrongAnswer2);
 router.post("/explain3", explainWrongAnswer3);
 

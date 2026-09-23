@@ -146,21 +146,15 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
-
-  // Add your actual Vercel frontend URL here
   "https://flair-olympiad-science-frontend.vercel.app",
-
-  // If you use these domains, uncomment them
-  // "https://flairolympiad.com",
-  // "https://www.flairolympiad.com",
-  // "https://flairfrontend.vercel.app",
+  "https://flair-voice-frontend.vercel.app",
+  "https://www.flairolympiad.com",
+  "https://flairolympiad.com",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests without an Origin
-      // such as Postman/server-to-server requests
       if (!origin) {
         return callback(null, true);
       }
@@ -168,6 +162,8 @@ app.use(
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
+      console.log("CORS blocked:", origin);
 
       return callback(new Error(`CORS blocked: ${origin}`));
     },
@@ -189,6 +185,7 @@ app.use(
     ],
   })
 );
+
 
 /*
 |--------------------------------------------------------------------------

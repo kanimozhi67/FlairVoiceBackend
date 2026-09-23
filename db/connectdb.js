@@ -1,41 +1,41 @@
 import mongoose from "mongoose";
 
 let cachedConnection = null;
-let cachedPromise = null;
 
 const connectdb = async () => {
-  // Check environment variable
   if (!process.env.MONGO_URL) {
-    throw new Error("MONGO_URL environment variable is not defined");
+    throw new Error(
+      "MONGO_URL environment variable is not defined"
+    );
   }
 
-  // Reuse existing connection
   if (cachedConnection) {
     return cachedConnection;
   }
 
-  // Reuse connection promise if one is already in progress
-  if (!cachedPromise) {
-    cachedPromise = mongoose.connect(process.env.MONGO_URL);
-  }
-
   try {
-    cachedConnection = await cachedPromise;
+    const connection = await mongoose.connect(
+      process.env.MONGO_URL
+    );
+
+    cachedConnection = connection;
 
     console.log("MongoDB Connected");
 
-    return cachedConnection;
-  } catch (err) {
-    cachedPromise = null;
+    return connection;
+  } catch (error) {
+    cachedConnection = null;
 
-    console.error("MongoDB connection failed:", err);
+    console.error(
+      "MongoDB connection failed:",
+      error
+    );
 
-    throw err;
+    throw error;
   }
 };
 
 export default connectdb;
-
 
     //import School from "../models/Schools.js";
 // import User from "../models/User.js";

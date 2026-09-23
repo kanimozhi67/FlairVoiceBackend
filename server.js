@@ -111,8 +111,7 @@
 //   }
 // }
 // startServer();
-import connectdb from "./db/connectdb.js";
-import express from "express";
+import connectdb from "./db/connectdb.js";import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -128,7 +127,6 @@ import userRoutes from "./routes/userRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-import stripe from "./utils/stripe.js";
 import { stripeWebhook } from "./controllers/paymentController.js";
 
 dotenv.config();
@@ -152,53 +150,55 @@ const allowedOrigins = [
   "https://flairolympiad.com",
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) {
-        return callback(null, true);
-      }
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests without Origin
+    // such as server-to-server requests
+    if (!origin) {
+      return callback(null, true);
+    }
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      console.log("CORS blocked:", origin);
+    console.log("CORS blocked:", origin);
 
-      return callback(new Error(`CORS blocked: ${origin}`));
-    },
+    return callback(new Error("Not allowed by CORS"));
+  },
 
-    credentials: true,
+  credentials: true,
 
-    methods: [
-      "GET",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
+  methods: [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+  ],
 
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-    ],
-  })
-);
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+  ],
+};
 
+app.use(cors(corsOptions));
 
 /*
 |--------------------------------------------------------------------------
 | Stripe Webhook
 |--------------------------------------------------------------------------
-| IMPORTANT:
-| This must come BEFORE express.json()
+| Must come before express.json()
 |--------------------------------------------------------------------------
 */
 
 app.post(
   "/api/payment/webhook",
-  express.raw({ type: "application/json" }),
+  express.raw({
+    type: "application/json",
+  }),
   stripeWebhook
 );
 
@@ -214,7 +214,7 @@ app.use(cookieParser());
 
 /*
 |--------------------------------------------------------------------------
-| Test Routes
+| Test
 |--------------------------------------------------------------------------
 */
 
@@ -234,57 +234,21 @@ app.get("/test", (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| Reading
+| Routes
 |--------------------------------------------------------------------------
 */
 
 app.use("/api/reading", readingRoutes);
 
-/*
-|--------------------------------------------------------------------------
-| Admin
-|--------------------------------------------------------------------------
-*/
-
 app.use("/api/admin", adminRoutes);
-
-/*
-|--------------------------------------------------------------------------
-| Users
-|--------------------------------------------------------------------------
-*/
 
 app.use("/api/users", userRoutes);
 
-/*
-|--------------------------------------------------------------------------
-| Authentication
-|--------------------------------------------------------------------------
-*/
-
 app.use("/api/auth", authRoutes);
-
-/*
-|--------------------------------------------------------------------------
-| Quiz
-|--------------------------------------------------------------------------
-*/
 
 app.use("/api/quiz", quizRoutes);
 
-/*
-|--------------------------------------------------------------------------
-| Quiz Progress
-|--------------------------------------------------------------------------
-*/
-
 app.use("/api/quiz/progress", progressRoutes);
-
-/*
-|--------------------------------------------------------------------------
-| Payments
-|--------------------------------------------------------------------------
-*/
 
 app.use("/api/payment", paymentRoutes);
 
@@ -298,28 +262,6 @@ app.use(
   "/img",
   express.static(path.join(__dirname, "img"))
 );
-
-/*
-|--------------------------------------------------------------------------
-| Stripe Test
-|--------------------------------------------------------------------------
-*/
-
-// app.get("/stripe-test", async (req, res) => {
-//   try {
-//     const balance = await stripe.balance.retrieve();
-
-//     res.json(balance);
-//   } catch (error) {
-//     console.error("Stripe error:", error);
-
-//     res.status(500).json({
-//       success: false,
-//       message: "Stripe connection failed",
-//       error: error.message,
-//     });
-//   }
-// )
 
 /*
 |--------------------------------------------------------------------------
@@ -349,19 +291,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-
-
 /*
 |--------------------------------------------------------------------------
 | IMPORTANT
 |--------------------------------------------------------------------------
-| Do NOT use app.listen() here for the Vercel deployment.
+| No app.listen() on Vercel
 |--------------------------------------------------------------------------
 */
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+export default app;

@@ -1,11 +1,10 @@
 import app from "../server.js";
 import connectdb from "../db/connectdb.js";
 
-let isConnected = false;
-
 const allowedOrigins = [
   "http://localhost:3000",
   "https://flair-olympiad-science-frontend.vercel.app",
+  "https://flair-voice-frontend.vercel.app",
   "https://www.flairolympiad.com",
   "https://flairolympiad.com",
 ];
@@ -13,6 +12,7 @@ const allowedOrigins = [
 export default async function handler(req, res) {
   const origin = req.headers.origin;
 
+  // CORS
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
@@ -27,28 +27,27 @@ export default async function handler(req, res) {
     "Content-Type, Authorization"
   );
 
-  // Preflight
+  // Handle browser preflight
   if (req.method === "OPTIONS") {
     return res.status(204).end();
   }
 
   try {
-    if (!isConnected) {
-      await connectdb();
-      isConnected = true;
+    // Connect MongoDB
+    await connectdb();
 
-      console.log("MongoDB connected");
-    }
-
+    // Run Express
     return app(req, res);
-
   } catch (error) {
-    console.error("Vercel function error:", error);
+    console.error("Vercel Function Error:", error);
 
     return res.status(500).json({
       success: false,
       message: "Server error",
-      error: error.message,
+      error:
+        process.env.NODE_ENV === "production"
+          ? "Database connection failed"
+          : error.message,
     });
   }
 }

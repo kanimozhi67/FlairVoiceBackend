@@ -1,15 +1,45 @@
 import mongoose from "mongoose";
-import School from "../models/Schools.js";
-// import User from "../models/User.js";
-// import stripe from "../utils/stripe.js";
-// Connect MongoDB
-const connectdb = async() => {
+
+let cachedConnection = null;
+let cachedPromise = null;
+
+const connectdb = async () => {
+  // Check environment variable
+  if (!process.env.MONGO_URL) {
+    throw new Error("MONGO_URL environment variable is not defined");
+  }
+
+  // Reuse existing connection
+  if (cachedConnection) {
+    return cachedConnection;
+  }
+
+  // Reuse connection promise if one is already in progress
+  if (!cachedPromise) {
+    cachedPromise = mongoose.connect(process.env.MONGO_URL);
+  }
+
   try {
-    await mongoose.connect(process.env.MONGO_URL);
+    cachedConnection = await cachedPromise;
+
     console.log("MongoDB Connected");
 
+    return cachedConnection;
+  } catch (err) {
+    cachedPromise = null;
 
-    
+    console.error("MongoDB connection failed:", err);
+
+    throw err;
+  }
+};
+
+export default connectdb;
+
+
+    //import School from "../models/Schools.js";
+// import User from "../models/User.js";
+// import stripe from "../utils/stripe.js";
 //  const school = new School({
 //       name: "FLAIR CBSE SCHOOL",
 //       address: "Madurai, India",
@@ -70,10 +100,3 @@ const connectdb = async() => {
 // );
 
 // console.log("Users updated:", result.modifiedCount);
-
-  } catch (err) {
-    console.log(err);
-    process.exit(1);
-  }
-};
-export default connectdb;

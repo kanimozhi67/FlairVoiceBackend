@@ -23,7 +23,10 @@ const userSchema = new mongoose.Schema(
       enum: ["kindergarten", "primary"],
       required: true,
     },
-
+completedStories: {
+  type: [String],
+  default: [],
+},
     role: {
       type: String,
       enum: ["User", "Admin"],

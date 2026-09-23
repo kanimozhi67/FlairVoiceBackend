@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-
+import readingRoutes from "./routes/readingRoutes.js";
 // 🔥 FORCE PATH (Windows-safe)
 dotenv.config();
 
@@ -44,7 +44,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://flair-olympiad-science-frontend.vercel.app"
+      // "https://flair-olympiad-science-frontend.vercel.app"
       // "https://flairfrontend.vercel.app",
       // "https://www.flairolympiad.com",   // 👈 ADD THIS
       // "https://flairolympiad.com"        // 👈 ALSO ADD ROOT (important)
@@ -65,6 +65,16 @@ app.use(cookieParser());
 app.use("/test", (req, res) => {
   return res.json({ message: "app is working" });
 });
+
+app.use(
+  "/api/reading",
+  readingRoutes
+);
+
+app.get("/", (req, res) => {
+  res.send("Flair Olympiad API running");
+});
+
 
 app.get("/stripe-test", async (req, res) => {
   const balance = await stripe.balance.retrieve();

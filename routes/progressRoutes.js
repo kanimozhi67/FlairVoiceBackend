@@ -8,6 +8,11 @@ import {
   schoolLeaderboard,
 } from "../controllers/progressController.js";
 
+import {
+  getPreviousMonthWinner,
+  generatePreviousMonthWinner,
+} from "../controllers/monthlyWinnerController.js";
+
 const router = express.Router();
 
 // Add points to user's progress
@@ -20,5 +25,14 @@ router.get("/schoolleaderbd", schoolLeaderboard);
 
 // Get overall progress summary (weekly, monthly, total, etc.)
 router.get("/summary", auth, getProgressSummary);
+router.get(
+  "/student-of-month",
+  getPreviousMonthWinner
+);
+
+router.post(
+  "/student-of-month/generate",
+  generatePreviousMonthWinner
+);
 
 export default router;

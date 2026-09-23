@@ -20,6 +20,10 @@ const studentsSchema = new mongoose.Schema(
       type: String,
       default: "/img/rabbitAvatar.png",
     },
+  completedStories: {
+  type: [String],
+  default: [],
+},
     sticker: {
       type: [String],
       default: [],

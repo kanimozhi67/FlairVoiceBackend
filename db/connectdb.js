@@ -8,6 +8,8 @@ const connectdb = async() => {
     await mongoose.connect(process.env.MONGO_URL);
     console.log("MongoDB Connected");
 
+
+    
 //  const school = new School({
 //       name: "FLAIR CBSE SCHOOL",
 //       address: "Madurai, India",
